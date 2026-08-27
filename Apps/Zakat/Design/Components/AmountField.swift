@@ -1,0 +1,92 @@
+import SwiftUI
+import ZakatEngine
+
+struct AmountField: View {
+    let title: String
+    @Binding var value: Decimal
+    var prefix: String = "$"
+
+    @State private var text: String = ""
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(Palette.muted)
+            HStack {
+                Text(prefix)
+                    .foregroundStyle(Palette.muted)
+                TextField("0", text: $text)
+                    .keyboardType(.decimalPad)
+                    .textInputAutocapitalization(.never)
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
+            .background(Palette.parchment, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        }
+        .onAppear { text = Self.format(value) }
+        .onChange(of: text) { _, newValue in
+            value = Self.parse(newValue)
+        }
+        .onChange(of: value) { _, newValue in
+            let parsed = Self.parse(text)
+            if parsed != newValue {
+                text = Self.format(newValue)
+            }
+        }
+    }
+
+    private static func parse(_ string: String) -> Decimal {
+        let cleaned = string.filter { $0.isNumber || $0 == "." }
+        return Decimal(string: cleaned) ?? 0
+    }
+
+    private static func format(_ value: Decimal) -> String {
+        if value == 0 { return "" }
+        return NSDecimalNumber(decimal: value).stringValue
+    }
+}
+
+struct NamedAmountEditor: View {
+    @Binding var items: [NamedAmount]
+    var placeholderName: String
+    var emptyTitle: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            ForEach($items) { $item in
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        TextField(placeholderName, text: $item.name)
+                            .font(.headline)
+                        Toggle("", isOn: $item.included)
+                            .labelsHidden()
+                            .tint(Palette.moss)
+                        Button(role: .destructive) {
+                            items.removeAll { $0.id == item.id }
+                        } label: {
+                            Image(systemName: "trash")
+                                .foregroundStyle(Palette.rust)
+                        }
+                    }
+                    AmountField(title: "Amount", value: $item.amount)
+                    if item.source == .linked {
+                        Text("Imported from a connected account")
+                            .font(.caption)
+                            .foregroundStyle(Palette.gold)
+                    }
+                }
+                .padding(14)
+                .background(Color.white.opacity(0.7), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            }
+
+            Button {
+                items.append(NamedAmount(name: "", amount: 0))
+            } label: {
+                Label(emptyTitle, systemImage: "plus")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Palette.forest)
+            }
+        }
+    }
+}

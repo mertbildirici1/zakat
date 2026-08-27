@@ -1,0 +1,17 @@
+.DS_Store
+/.build
+/.derivedData
+/Packages
+/*.xcodeproj/xcuserdata
+/*.xcworkspace/xcuserdata
+DerivedData/
+.swiftpm
+.env
+.env.local
+node_modules/
+backend/node_modules/
+*.xcuserstate
+xcuserdata/
+.idea
+.vscode
+*.log
