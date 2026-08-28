@@ -1,57 +1,61 @@
-# App Store submission
+# App Store submission (v1)
 
-Zakat is ready to archive once you have an Apple Developer account ($99/year) and a public HTTPS backend for the privacy policy URL.
+v1 is **offline only**. Bank linking is gated behind Coming soon. No Plaid, Render, or hosted accounts are required to ship.
 
-## You must do in Apple’s tools
+Privacy and support URLs:
 
-1. Open `Zakat.xcodeproj` in Xcode.
-2. Signing & Capabilities → your Team. Change the bundle ID from `app.zakat.calculator` if that ID is taken.
-3. For a **Release** build, set `API_BASE_URL` on the Zakat target to your deployed backend (see `backend/render.yaml`). Debug already uses `http://127.0.0.1:8787`.
-4. Product → Archive → Distribute App → App Store Connect.
-5. In App Store Connect, create the app (category: Finance). Paste the listing copy below.
-6. Privacy Policy URL: `https://YOUR-BACKEND/privacy`  
-   Support URL: `https://YOUR-BACKEND/`  
-   Marketing URL: optional.
-7. Export compliance: the app uses HTTPS only. Answer that you use encryption only for HTTPS (ITSAppUsesNonExemptEncryption is already NO).
-8. Attach screenshots (iPhone 6.7" and 6.1" at minimum). Capture Welcome, Offline gateway, Calculator, Result, Profile.
+- Support: `https://mertbildirici1.github.io/zakat/`
+- Privacy: `https://mertbildirici1.github.io/zakat/privacy.html`
+
+Turn on GitHub Pages: repo **Settings → Pages → Deploy from a branch → `main` / `docs`**.
+
+## Apple steps (you)
+
+1. [developer.apple.com](https://developer.apple.com) → Membership → confirm **Active** → copy **Team ID**.
+2. Identifiers → **+** → App IDs → App → explicit bundle ID `app.zakat.calculator` (no extra capabilities).
+3. [appstoreconnect.apple.com](https://appstoreconnect.apple.com) → My Apps → **+** → New App:
+   - Platform: iOS
+   - Name: Zakat (if taken: Zakat Calculator)
+   - Primary language: English (US)
+   - Bundle ID: `app.zakat.calculator`
+   - SKU: `zakat`
+4. In Xcode: open `Zakat.xcodeproj` → Signing & Capabilities → Team. Product → Archive → Distribute App → App Store Connect.
+5. Paste the listing below. Category: **Finance**. Price: **Free**.
+6. Export compliance: encryption used only for HTTPS (`ITSAppUsesNonExemptEncryption` is already NO).
+7. Screenshots: iPhone 6.7" and 6.1". Capture Welcome, holdings, result, settings.
 
 ## Listing
 
 **Name:** Zakat  
 **Subtitle:** Estimate what you owe  
-**Promotional text:** Calculate zakat offline, or sign in on this iPhone to link accounts and review every line.
+**Promotional text:** Enter your holdings on this iPhone and estimate 2.5% of net zakatable wealth. No account required.
 
 **Description:**
 
-Zakat helps you estimate 2.5% of net zakatable wealth.
+Zakat helps you estimate 2.5% of net zakatable wealth. Everything stays on this iPhone.
 
-• Offline mode — enter cash, gold, silver, investments, crypto, business inventory, receivables, and debts. Nothing is required to leave your iPhone.  
-• Optional local profile — save a name on this device, link banks when you choose, and keep history.  
+• Enter cash, gold, silver, investments, crypto, business inventory, receivables, and debts.  
 • Gold or silver nisab, karat-aware gold, and settings for jewelry, retirement accounts, and debts.  
-• Optional live metal prices and a 354-day hawl reminder.
+• A 354-day hawl reminder.  
+• Optional live metal prices when a network is available.
 
 This is an estimate, not a fatwa. Confirm with a scholar you trust before you distribute.
 
 **Keywords:** zakat,nisab,islam,charity,gold,calculator,finance,sadaqah,hawl,muslim  
-**Support email:** hmertbildirici@gmail.com
+**Support email:** hmertbildirici@gmail.com  
+**Privacy URL:** https://mertbildirici1.github.io/zakat/privacy.html  
+**Support URL:** https://mertbildirici1.github.io/zakat/
 
 ## App privacy (nutrition labels)
 
-Data not collected for tracking.
+Data not collected. Tracking: No.
 
-On-device only (not “collected” off device unless the user links banks or emails support):
-• Contact Info (name, email) — App Functionality, not linked to identity off-device, not used for tracking.  
-• Financial Info (holdings the user enters) — App Functionality.
-
-If the user links accounts, the linking provider (Plaid) and your backend receive account names and balances. Disclose that third party in App Store Connect.
+Do not declare Contact Info or Financial Info as collected. Holdings stay on device. Support email is outside the app.
 
 ## Review notes
 
-The calculator works without an account (Continue offline).  
-Demo local account: create any email on the simulator; passwords never leave the device.  
-Bank linking uses sandbox institutions unless PLAID_CLIENT_ID and PLAID_SECRET are set on the backend.  
-Please do not require a production Plaid login; sandbox cards are enough to review mapping.
+v1 is offline. Tap Continue offline after accepting legal documents. Sign in / Create account show Coming soon and return to the offline calculator. There is no demo account and no bank login to review.
 
 ## Legal
 
-Terms, privacy, and the zakat disclaimer ship in the app (first launch + Profile → Legal) and on the backend (`/terms`, `/privacy`, `/disclaimer`). Have a lawyer review before you rely on them in production.
+Terms, privacy, and the zakat disclaimer ship in the app (first launch + Settings → Legal) and at the GitHub Pages URLs above.
