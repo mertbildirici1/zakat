@@ -74,4 +74,17 @@ public struct ZakatDraft: Codable, Equatable, Sendable {
             ]
         )
     }
+
+    public func removingLinkedRows() -> ZakatDraft {
+        var next = self
+        next.bankDeposits.removeAll { $0.source == .linked }
+        next.investments.removeAll { $0.source == .linked }
+        next.retirement.removeAll { $0.source == .linked }
+        next.crypto.removeAll { $0.source == .linked }
+        next.businessInventory.removeAll { $0.source == .linked }
+        next.receivables.removeAll { $0.source == .linked }
+        next.immediateDebts.removeAll { $0.source == .linked }
+        next.longTermDebts.removeAll { $0.source == .linked }
+        return next
+    }
 }

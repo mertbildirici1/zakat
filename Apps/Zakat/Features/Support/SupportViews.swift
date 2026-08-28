@@ -9,9 +9,9 @@ struct HistoryView: View {
             ScreenBackground()
             if session.history.isEmpty {
                 VStack(spacing: 10) {
-                    Text("No saved estimates yet")
+                    Text("No saved estimates")
                         .font(.headline)
-                    Text("Open a result and it will be stored on this phone.")
+                    Text("Open a result to save it here.")
                         .font(.subheadline)
                         .foregroundStyle(Palette.muted)
                         .multilineTextAlignment(.center)
@@ -43,13 +43,13 @@ struct HistoryView: View {
 
 struct FAQView: View {
     private let items: [(String, String)] = [
-        ("Do I need an account?", "No. Continue offline to calculate without a profile. Create an account only if you want a named profile and connected banks on this phone."),
-        ("Is this a fatwa?", "No. It is an estimate helper. Confirm with a scholar you trust."),
-        ("Where is my data?", "Holdings, history, and local passwords stay on this iPhone. Metal prices and optional bank linking use the network."),
-        ("How do I delete my account?", "Signed-in: Profile → Delete account. That removes the local profile from this device."),
-        ("What is nisab?", "A minimum threshold. This App uses 87.48 g of gold or 612.36 g of silver, converted at the prices you set or refresh."),
-        ("What is hawl?", "A lunar year, treated here as 354 days from the start date you record. The reminder is optional."),
-        ("Forgot password?", "On the sign-in screen, reset the local password if this device still has that email."),
+        ("Do I need an account?", "No. v1 is offline only. Bank linking is coming soon."),
+        ("Is this a fatwa?", "No. It is an estimate. Confirm with a scholar you trust."),
+        ("Where is my data?", "Holdings stay on this iPhone."),
+        ("How do I delete my data?", "Clear holdings in the calculator, or uninstall the app."),
+        ("What is nisab?", "A minimum threshold: 87.48 g gold or 612.36 g silver."),
+        ("What is hawl?", "A lunar year, treated here as 354 days."),
+        ("Is zakat 2.5% of my gain?", "No. It is 2.5% of wealth now, if you are above nisab."),
     ]
 
     var body: some View {
@@ -84,7 +84,7 @@ struct SupportView: View {
                     Text("Version \(AppConfig.version)")
                         .font(.subheadline)
                         .foregroundStyle(Palette.muted)
-                    Text("For product questions, bugs, or data-deletion requests, email us. Include your iOS version. Do not send account passwords.")
+                    Text("Questions or data deletion: email us. Don’t send passwords.")
                         .font(.body)
                         .foregroundStyle(Palette.muted)
                     if let url = URL(string: "mailto:\(AppConfig.supportEmail)") {
@@ -100,7 +100,7 @@ struct SupportView: View {
                     NavigationLink {
                         FAQView()
                     } label: {
-                        ProfileRow(title: "Frequently asked questions", systemImage: "questionmark.circle")
+                            ProfileRow(title: "FAQ", systemImage: "questionmark.circle")
                     }
                     .buttonStyle(.plain)
                     NavigationLink {
@@ -132,11 +132,11 @@ struct ResetPasswordView: View {
             ScreenBackground()
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("This only works for a profile already saved on this iPhone.")
+                    Text("Only for a profile saved on this iPhone.")
                         .font(.subheadline)
                         .foregroundStyle(Palette.muted)
                     LabeledField(title: "Email", placeholder: "you@example.com", text: $email, keyboard: .emailAddress, contentType: .emailAddress)
-                    LabeledField(title: "New password", placeholder: "At least 8 characters", text: $password, isSecure: true, contentType: .newPassword)
+                    LabeledField(title: "New password", placeholder: "8+ characters", text: $password, isSecure: true, contentType: .newPassword)
                     LabeledField(title: "Confirm", placeholder: "Re-enter password", text: $confirm, isSecure: true, contentType: .newPassword)
                     if let message {
                         Text(message)
@@ -147,7 +147,7 @@ struct ResetPasswordView: View {
                         do {
                             try session.resetPassword(email: email, newPassword: password, confirmPassword: confirm)
                             isError = false
-                            message = "Password updated. You can sign in."
+                            message = "Password updated."
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { dismiss() }
                         } catch {
                             isError = true

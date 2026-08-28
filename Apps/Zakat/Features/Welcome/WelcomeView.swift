@@ -17,19 +17,19 @@ struct WelcomeView: View {
                         ModeCard(
                             eyebrow: "No account",
                             title: "Continue offline",
-                            detail: "Enter everything yourself. Nothing is stored in a profile, and nothing is sent to a bank.",
+                            detail: "Enter holdings yourself. Nothing leaves this phone.",
                             systemImage: "iphone"
                         )
                     }
                     .buttonStyle(.plain)
 
                     NavigationLink {
-                        AuthView(mode: .signIn)
+                        ComingSoonView()
                     } label: {
                         ModeCard(
-                            eyebrow: "Account",
+                            eyebrow: "Soon",
                             title: "Sign in",
-                            detail: "Keep a profile, link banks and brokerages, and pick up your estimate on this phone.",
+                            detail: "Bank linking is being worked on.",
                             systemImage: "person.crop.circle"
                         )
                     }
@@ -37,7 +37,7 @@ struct WelcomeView: View {
                 }
 
                 NavigationLink {
-                    AuthView(mode: .createAccount)
+                    ComingSoonView()
                 } label: {
                     Text("Create an account")
                         .font(.headline)
@@ -47,7 +47,7 @@ struct WelcomeView: View {
                 }
                 .padding(.top, 8)
 
-                Text("Offline never requires an account. Sign in only if you want a profile and connected accounts.")
+                Text("Offline needs no account.")
                     .font(.caption)
                     .foregroundStyle(Palette.muted)
                     .multilineTextAlignment(.center)
@@ -79,7 +79,7 @@ struct WelcomeView: View {
                 Text("Zakat")
                     .font(.system(size: 44, weight: .semibold, design: .serif))
                     .foregroundStyle(Palette.forest)
-                Text("A clear estimate of what you owe — privately on this phone, or with a signed-in profile if you want to connect accounts.")
+                Text("Estimate zakat from what you hold.")
                     .font(.body)
                     .foregroundStyle(Palette.muted)
                     .multilineTextAlignment(.center)

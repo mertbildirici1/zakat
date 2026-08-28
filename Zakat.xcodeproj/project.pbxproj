@@ -12,6 +12,7 @@
 		109C64EB46A713DCE892F3CD /* Data/Auth/AuthStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C0DFDA4A7FAF81AA8888348 /* Data/Auth/AuthStore.swift */; };
 		2A4F98EBFE9FF746A07940C5 /* Data/Auth/UserAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD19007B252A505414086DC5 /* Data/Auth/UserAccount.swift */; };
 		C9E7028F8EA8A916B9FD3777 /* Data/Linking/BankLinkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A82C71044705990D8A77334 /* Data/Linking/BankLinkClient.swift */; };
+		9F0A6056B30916DBDDB8719D /* Data/Network/CloudAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43DA7E386384C849773801F9 /* Data/Network/CloudAPI.swift */; };
 		8702B304CCCE544A3D2389A1 /* Data/Network/MetalsClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E4AB77D60B657738DD2271F /* Data/Network/MetalsClient.swift */; };
 		3AEBBB527EC3D29BE28A1FB6 /* Data/Persistence/DraftStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE81DDA043EC03897E7D7CF1 /* Data/Persistence/DraftStore.swift */; };
 		01446C100EB86DF7E765DE7D /* Design/Components/AmountField.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE11BCF4466B79C7827879CF /* Design/Components/AmountField.swift */; };
@@ -29,7 +30,9 @@
 		CF63B020BE82489766D021FD /* Features/Result/ResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 746EDED22D18C93F75C3DF00 /* Features/Result/ResultView.swift */; };
 		86079261F887D89661A1864C /* Features/Settings/SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E55C131DF5E1B0E376687C66 /* Features/Settings/SettingsView.swift */; };
 		784156F989D68C65DEF90EC5 /* Features/Support/SupportViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA6D0983819B80276298FA25 /* Features/Support/SupportViews.swift */; };
+		A5B7BDBB4F592E676BFE9E56 /* Features/Welcome/ComingSoonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9E92F8DBE01232CF42430EB /* Features/Welcome/ComingSoonView.swift */; };
 		D5215265F9077F33D87BD004 /* Features/Welcome/WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5D2308CD6CDC65BF29E76FC /* Features/Welcome/WelcomeView.swift */; };
+		232575FBB10896617B5EBF40 /* Features/Year/YearView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C745EC4D26A4193FFB0E2A8 /* Features/Year/YearView.swift */; };
 		633D57D47BC01F3A0E58F76E /* ZakatApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF9EAFDE978E7A325FC2A1BB /* ZakatApp.swift */; };
 		FB90684E69A6C96ED866993E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3685E330EC5277A9DD5661C6 /* Assets.xcassets */; };
 		B397C018A17BFBF166508EA2 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 96ED5C5789B174A01557791C /* PrivacyInfo.xcprivacy */; };
@@ -42,6 +45,7 @@
 		6C0DFDA4A7FAF81AA8888348 /* Data/Auth/AuthStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthStore.swift; sourceTree = "<group>"; };
 		BD19007B252A505414086DC5 /* Data/Auth/UserAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccount.swift; sourceTree = "<group>"; };
 		0A82C71044705990D8A77334 /* Data/Linking/BankLinkClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BankLinkClient.swift; sourceTree = "<group>"; };
+		43DA7E386384C849773801F9 /* Data/Network/CloudAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudAPI.swift; sourceTree = "<group>"; };
 		3E4AB77D60B657738DD2271F /* Data/Network/MetalsClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalsClient.swift; sourceTree = "<group>"; };
 		DE81DDA043EC03897E7D7CF1 /* Data/Persistence/DraftStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DraftStore.swift; sourceTree = "<group>"; };
 		FE11BCF4466B79C7827879CF /* Design/Components/AmountField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmountField.swift; sourceTree = "<group>"; };
@@ -59,7 +63,9 @@
 		746EDED22D18C93F75C3DF00 /* Features/Result/ResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultView.swift; sourceTree = "<group>"; };
 		E55C131DF5E1B0E376687C66 /* Features/Settings/SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		BA6D0983819B80276298FA25 /* Features/Support/SupportViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportViews.swift; sourceTree = "<group>"; };
+		D9E92F8DBE01232CF42430EB /* Features/Welcome/ComingSoonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComingSoonView.swift; sourceTree = "<group>"; };
 		E5D2308CD6CDC65BF29E76FC /* Features/Welcome/WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
+		8C745EC4D26A4193FFB0E2A8 /* Features/Year/YearView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YearView.swift; sourceTree = "<group>"; };
 		BF9EAFDE978E7A325FC2A1BB /* ZakatApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZakatApp.swift; sourceTree = "<group>"; };
 		B6CDB6E5D160E013280D3C68 /* Zakat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Zakat.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3685E330EC5277A9DD5661C6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -153,6 +159,7 @@
 				E74680E53F3891CD30247774 /* Settings */,
 				5738B42342C97D34967C5CF9 /* Support */,
 				254B1A524F6A6D376EF95D7A /* Welcome */,
+				25F41BA644CF69BBA83C251C /* Year */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -177,6 +184,7 @@
 		E3D9B5AB66107C915EB71787 /* Network */ = {
 			isa = PBXGroup;
 			children = (
+				43DA7E386384C849773801F9 /* CloudAPI.swift */,
 				3E4AB77D60B657738DD2271F /* MetalsClient.swift */,
 			);
 			path = Network;
@@ -284,9 +292,18 @@
 		254B1A524F6A6D376EF95D7A /* Welcome */ = {
 			isa = PBXGroup;
 			children = (
+				D9E92F8DBE01232CF42430EB /* ComingSoonView.swift */,
 				E5D2308CD6CDC65BF29E76FC /* WelcomeView.swift */,
 			);
 			path = Welcome;
+			sourceTree = "<group>";
+		};
+		25F41BA644CF69BBA83C251C /* Year */ = {
+			isa = PBXGroup;
+			children = (
+				8C745EC4D26A4193FFB0E2A8 /* YearView.swift */,
+			);
+			path = Year;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -370,6 +387,7 @@
 				109C64EB46A713DCE892F3CD /* Data/Auth/AuthStore.swift in Sources */,
 				2A4F98EBFE9FF746A07940C5 /* Data/Auth/UserAccount.swift in Sources */,
 				C9E7028F8EA8A916B9FD3777 /* Data/Linking/BankLinkClient.swift in Sources */,
+				9F0A6056B30916DBDDB8719D /* Data/Network/CloudAPI.swift in Sources */,
 				8702B304CCCE544A3D2389A1 /* Data/Network/MetalsClient.swift in Sources */,
 				3AEBBB527EC3D29BE28A1FB6 /* Data/Persistence/DraftStore.swift in Sources */,
 				01446C100EB86DF7E765DE7D /* Design/Components/AmountField.swift in Sources */,
@@ -387,7 +405,9 @@
 				CF63B020BE82489766D021FD /* Features/Result/ResultView.swift in Sources */,
 				86079261F887D89661A1864C /* Features/Settings/SettingsView.swift in Sources */,
 				784156F989D68C65DEF90EC5 /* Features/Support/SupportViews.swift in Sources */,
+				A5B7BDBB4F592E676BFE9E56 /* Features/Welcome/ComingSoonView.swift in Sources */,
 				D5215265F9077F33D87BD004 /* Features/Welcome/WelcomeView.swift in Sources */,
+				232575FBB10896617B5EBF40 /* Features/Year/YearView.swift in Sources */,
 				633D57D47BC01F3A0E58F76E /* ZakatApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

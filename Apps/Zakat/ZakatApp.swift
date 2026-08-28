@@ -18,21 +18,28 @@ struct ZakatApp: App {
         if args.contains("-ui-offline") {
             session.acceptLegal()
             session.enterOffline()
-        } else if args.contains("-ui-signed-in") || args.contains("-ui-profile") {
+        } else if AppConfig.accountsEnabled, args.contains("-ui-signed-in") || args.contains("-ui-profile") || args.contains("-ui-year") {
             session.acceptLegal()
-            let email = "demo@zakat.app"
-            do {
-                try session.signIn(email: email, password: "password123")
-            } catch {
-                try? session.createAccount(
-                    fullName: "Demo User",
-                    email: email,
-                    password: "password123",
-                    confirmPassword: "password123"
-                )
-            }
-            if args.contains("-ui-profile") {
-                session.selectedTab = 2
+            Task {
+                let email = "demo@zakat.app"
+                do {
+                    try await session.signIn(email: email, password: "password123")
+                } catch {
+                    try? await session.createAccount(
+                        fullName: "Demo User",
+                        email: email,
+                        password: "password123",
+                        confirmPassword: "password123"
+                    )
+                }
+                if session.hasCloudSession {
+                    try? await session.connectCloudInstitution("chase")
+                }
+                if args.contains("-ui-profile") {
+                    session.selectedTab = 3
+                } else if args.contains("-ui-year") {
+                    session.selectedTab = 1
+                }
             }
         }
         #endif

@@ -29,7 +29,7 @@ struct WorkspaceMeta: Codable, Equatable, Sendable {
     var hawlStartDate: Date
     var hawlReminderEnabled: Bool
 
-    init(hawlStartDate: Date = Date(), hawlReminderEnabled: Bool = false) {
+    init(hawlStartDate: Date = Calendar.current.date(byAdding: .day, value: -Hawl.lunarYearDays, to: Date()) ?? Date(), hawlReminderEnabled: Bool = false) {
         self.hawlStartDate = hawlStartDate
         self.hawlReminderEnabled = hawlReminderEnabled
     }
@@ -95,12 +95,23 @@ enum DraftStore {
         return meta
     }
 
+    static func saveTransactions(_ transactions: [BankTransaction], namespace: String) {
+        guard let data = try? JSONEncoder().encode(transactions) else { return }
+        UserDefaults.standard.set(data, forKey: txKey(namespace))
+    }
+
+    static func loadTransactions(namespace: String) -> [BankTransaction] {
+        guard let data = UserDefaults.standard.data(forKey: txKey(namespace)) else { return [] }
+        return (try? JSONDecoder().decode([BankTransaction].self, from: data)) ?? []
+    }
+
     static func clearNamespace(_ namespace: String) {
         UserDefaults.standard.removeObject(forKey: draftKey(namespace))
         UserDefaults.standard.removeObject(forKey: resultKey(namespace))
         UserDefaults.standard.removeObject(forKey: accountsKey(namespace))
         UserDefaults.standard.removeObject(forKey: historyKey(namespace))
         UserDefaults.standard.removeObject(forKey: metaKey(namespace))
+        UserDefaults.standard.removeObject(forKey: txKey(namespace))
     }
 
     private static func draftKey(_ namespace: String) -> String { "zakat.draft.v1.\(namespace)" }
@@ -108,4 +119,5 @@ enum DraftStore {
     private static func accountsKey(_ namespace: String) -> String { "zakat.accounts.v1.\(namespace)" }
     private static func historyKey(_ namespace: String) -> String { "zakat.history.v1.\(namespace)" }
     private static func metaKey(_ namespace: String) -> String { "zakat.meta.v1.\(namespace)" }
+    private static func txKey(_ namespace: String) -> String { "zakat.tx.v1.\(namespace)" }
 }

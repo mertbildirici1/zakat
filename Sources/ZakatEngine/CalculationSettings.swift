@@ -8,8 +8,8 @@ public enum NisabStandard: String, Codable, CaseIterable, Identifiable, Sendable
 
     public var title: String {
         switch self {
-        case .gold: "Gold nisab (87.48 g)"
-        case .silver: "Silver nisab (612.36 g)"
+        case .gold: "Gold (87.48 g)"
+        case .silver: "Silver (612.36 g)"
         }
     }
 }

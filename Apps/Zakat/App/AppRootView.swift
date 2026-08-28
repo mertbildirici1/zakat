@@ -18,7 +18,13 @@ struct AppRootView: View {
                         OfflineGatewayView()
                     }
                 case .signedIn:
-                    SignedInRootView()
+                    if AppConfig.accountsEnabled {
+                        SignedInRootView()
+                    } else {
+                        NavigationStack {
+                            WelcomeView()
+                        }
+                    }
                 }
             }
         }
@@ -41,18 +47,27 @@ struct SignedInRootView: View {
             .tag(0)
 
             NavigationStack {
-                ManualCalculatorView()
+                YearView()
             }
-            .tabItem { Label("Calculate", systemImage: "square.grid.2x2.fill") }
+            .tabItem { Label("Year", systemImage: "chart.bar.fill") }
             .tag(1)
+
+            NavigationStack {
+                ConnectedAccountsView()
+            }
+            .tabItem { Label("Accounts", systemImage: "building.columns.fill") }
+            .tag(2)
 
             NavigationStack {
                 ProfileView()
             }
             .tabItem { Label("Profile", systemImage: "person.crop.circle.fill") }
-            .tag(2)
+            .tag(3)
         }
         .toolbarBackground(Palette.cream, for: .tabBar)
         .toolbarBackground(.visible, for: .tabBar)
+        .task {
+            await session.refreshFromCloud()
+        }
     }
 }

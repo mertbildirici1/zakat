@@ -27,8 +27,10 @@ enum LegalDocument: String, CaseIterable, Identifiable {
 enum AppConfig {
     static let appName = "Zakat"
     static let operatorName = "the developer of Zakat"
-    static let supportEmail = "support@zakat.app"
+    static let supportEmail = "hmertbildirici@gmail.com"
     static let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+    /// v1 ships offline only. Turn this on when bank linking is ready.
+    static let accountsEnabled = false
 }
 
 enum LegalCopy {

@@ -40,15 +40,15 @@ public struct ZakatCalculator: Sendable {
         let due = meetsNisab ? Money.rounded(net * Money.zakatRate) : 0
 
         let breakdown: [BreakdownRow] = [
-            BreakdownRow(id: "cash", title: "Cash & bank deposits", amount: Money.rounded(cashAndBanks)),
+            BreakdownRow(id: "cash", title: "Cash & banks", amount: Money.rounded(cashAndBanks)),
             BreakdownRow(id: "gold", title: "Gold", amount: Money.rounded(goldValue)),
             BreakdownRow(id: "silver", title: "Silver", amount: Money.rounded(silverValue)),
             BreakdownRow(id: "investments", title: "Investments", amount: Money.rounded(investments)),
-            BreakdownRow(id: "retirement", title: "Retirement accounts", amount: Money.rounded(retirement)),
+            BreakdownRow(id: "retirement", title: "Retirement", amount: Money.rounded(retirement)),
             BreakdownRow(id: "crypto", title: "Crypto", amount: Money.rounded(crypto)),
-            BreakdownRow(id: "business", title: "Business inventory", amount: Money.rounded(business)),
-            BreakdownRow(id: "receivables", title: "Money owed to you", amount: Money.rounded(receivables)),
-            BreakdownRow(id: "debts", title: "Deductible debts", amount: Money.rounded(deductible), isDeduction: true),
+            BreakdownRow(id: "business", title: "Business", amount: Money.rounded(business)),
+            BreakdownRow(id: "receivables", title: "Owed to you", amount: Money.rounded(receivables)),
+            BreakdownRow(id: "debts", title: "Debts", amount: Money.rounded(deductible), isDeduction: true),
         ].filter { $0.amount > 0 }
 
         return ZakatResult(

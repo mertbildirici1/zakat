@@ -14,10 +14,10 @@ enum AuthError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .invalidName: return "Enter your name."
-        case .invalidEmail: return "Enter a valid email address."
-        case .shortPassword: return "Password must be at least 8 characters."
-        case .passwordMismatch: return "Passwords do not match."
-        case .emailTaken: return "An account with this email already exists."
+        case .invalidEmail: return "Enter a valid email."
+        case .shortPassword: return "Use 8+ characters."
+        case .passwordMismatch: return "Passwords don’t match."
+        case .emailTaken: return "Email already in use."
         case .invalidCredentials: return "Email or password is incorrect."
         case .notSignedIn: return "You are not signed in."
         case .mustAcceptLegal: return "Accept the terms to continue."
@@ -132,9 +132,37 @@ enum AuthStore {
         }
     }
 
+    static func upsertCloudProfile(fullName: String, email: String) -> UserAccount {
+        let normalized = normalize(email)
+        if var existing = allUsers().first(where: { $0.email == normalized }) {
+            existing.fullName = fullName
+            var users = allUsers()
+            if let index = users.firstIndex(where: { $0.id == existing.id }) {
+                users[index] = existing
+                save(users)
+            }
+            currentUserID = existing.id
+            route = .signedIn
+            return existing
+        }
+        let account = UserAccount(
+            id: UUID(),
+            fullName: fullName,
+            email: normalized,
+            salt: "cloud",
+            passwordHash: "cloud",
+            createdAt: Date()
+        )
+        save(allUsers() + [account])
+        currentUserID = account.id
+        route = .signedIn
+        return account
+    }
+
     static func signOut() {
         currentUserID = nil
         route = .welcome
+        SessionTokenStore.token = nil
     }
 
     static func deleteCurrentAccount() {
@@ -143,6 +171,7 @@ enum AuthStore {
         DraftStore.clearNamespace("user-\(id.uuidString)")
         currentUserID = nil
         route = .welcome
+        SessionTokenStore.token = nil
     }
 
     static func enterOffline() {

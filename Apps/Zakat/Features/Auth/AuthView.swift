@@ -37,8 +37,8 @@ struct AuthView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     Text(mode == .signIn
-                         ? "Use the email you registered on this phone. Accounts stay on-device in this version."
-                         : "This creates a local profile on this iPhone. You will need it to link bank accounts.")
+                         ? "Save bank links and this year’s activity."
+                         : "Keep banks and balances with your profile.")
                         .font(.subheadline)
                         .foregroundStyle(Palette.muted)
 
@@ -61,7 +61,7 @@ struct AuthView: View {
                     )
                     LabeledField(
                         title: "Password",
-                        placeholder: "At least 8 characters",
+                        placeholder: "8+ characters",
                         text: $password,
                         isSecure: true,
                         contentType: mode == .createAccount ? .newPassword : .password
@@ -69,21 +69,21 @@ struct AuthView: View {
 
                     if mode == .createAccount {
                         LabeledField(
-                            title: "Confirm password",
+                            title: "Confirm",
                             placeholder: "Re-enter password",
                             text: $confirmPassword,
                             isSecure: true,
                             contentType: .newPassword
                         )
                         Toggle(isOn: $acceptedTerms) {
-                            Text("I accept the Terms, Privacy Policy, and Zakat Disclaimer.")
+                            Text("I accept the Terms, Privacy, and Disclaimer.")
                                 .font(.subheadline)
                         }
                         .tint(Palette.moss)
                         NavigationLink {
                             LegalIndexView()
                         } label: {
-                            Text("Read legal documents")
+                            Text("Read terms")
                                 .font(.footnote.weight(.semibold))
                                 .foregroundStyle(Palette.forest)
                         }
@@ -95,11 +95,11 @@ struct AuthView: View {
                             .foregroundStyle(Palette.rust)
                     }
 
-                    PrimaryButton(title: isWorking ? "Please wait…" : mode.submitTitle, enabled: canSubmit && !isWorking) {
+                    PrimaryButton(title: isWorking ? "Working…" : mode.submitTitle, enabled: canSubmit && !isWorking) {
                         submit()
                     }
 
-                    Button(mode == .signIn ? "Need an account? Create one" : "Already have an account? Sign in") {
+                    Button(mode == .signIn ? "Create an account" : "Sign in instead") {
                         withAnimation(.easeInOut(duration: 0.2)) {
                             mode = mode == .signIn ? .createAccount : .signIn
                             errorMessage = nil
@@ -142,19 +142,19 @@ struct AuthView: View {
             try? await Task.sleep(for: .milliseconds(280))
             do {
                 if mode == .createAccount {
-                    try session.createAccount(
+                    try await session.createAccount(
                         fullName: fullName,
                         email: email,
                         password: password,
                         confirmPassword: confirmPassword
                     )
                 } else {
-                    try session.signIn(email: email, password: password)
+                    try await session.signIn(email: email, password: password)
                 }
             } catch {
                 errorMessage = error.localizedDescription
-                isWorking = false
             }
+            isWorking = false
         }
     }
 }

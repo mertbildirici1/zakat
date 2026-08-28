@@ -17,15 +17,15 @@ struct SettingsView: View {
                             Text(standard.title).tag(standard)
                         }
                     }
-                    Text("Gold nisab is 87.48 g. Silver nisab is 612.36 g. Choose the view you follow.")
+                    Text("Gold 87.48 g · silver 612.36 g.")
                         .font(.caption)
                         .foregroundStyle(Palette.muted)
                 }
 
                 Section("Metal prices") {
-                    AmountField(title: "Gold price per gram", value: $session.draft.settings.goldPricePerGram)
-                    AmountField(title: "Silver price per gram", value: $session.draft.settings.silverPricePerGram)
-                    Button(isRefreshingMetals ? "Refreshing…" : "Refresh from market") {
+                    AmountField(title: "Gold / gram", value: $session.draft.settings.goldPricePerGram)
+                    AmountField(title: "Silver / gram", value: $session.draft.settings.silverPricePerGram)
+                    Button(isRefreshingMetals ? "Refreshing…" : "Refresh prices") {
                         isRefreshingMetals = true
                         Task {
                             await session.refreshMetalPrices()
@@ -50,7 +50,7 @@ struct SettingsView: View {
                         displayedComponents: .date
                     )
                     Toggle(
-                        "Remind me on the anniversary",
+                        "Remind me when due",
                         isOn: Binding(
                             get: { session.meta.hawlReminderEnabled },
                             set: { session.updateHawl(start: session.meta.hawlStartDate, reminder: $0) }
@@ -62,13 +62,13 @@ struct SettingsView: View {
                 }
 
                 Section("What to include") {
-                    Toggle("Include personal gold/silver jewelry", isOn: $session.draft.settings.includePersonalJewelry)
-                    Toggle("Include retirement accounts", isOn: $session.draft.settings.includeRetirementAccounts)
-                    Toggle("Deduct only debts due now", isOn: $session.draft.settings.deductOnlyImmediateDebts)
+                    Toggle("Include personal jewelry", isOn: $session.draft.settings.includePersonalJewelry)
+                    Toggle("Include retirement", isOn: $session.draft.settings.includeRetirementAccounts)
+                    Toggle("Only debts due now", isOn: $session.draft.settings.deductOnlyImmediateDebts)
                 }
 
                 Section("Legal") {
-                    NavigationLink("Terms, privacy, and disclaimer") {
+                    NavigationLink("Terms & privacy") {
                         LegalIndexView()
                     }
                 }
@@ -84,11 +84,11 @@ struct SettingsView: View {
     private var hawlCaption: String {
         let days = session.hawlDaysRemaining
         if days > 0 {
-            return "About \(days) days remain in this 354-day hawl. This is a reminder, not a ruling."
+            return "\(days) days left in this hawl. Reminder only."
         }
         if days == 0 {
-            return "Your recorded hawl is due today. Review your estimate with a scholar if needed."
+            return "Hawl is due today."
         }
-        return "Your recorded hawl date is \(abs(days)) days ago. Update the start date if you have already paid."
+        return "Hawl date was \(abs(days)) days ago. Update if already paid."
     }
 }

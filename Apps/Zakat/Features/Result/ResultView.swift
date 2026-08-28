@@ -18,7 +18,7 @@ struct ResultView: View {
                         Text(result.meetsNisab ? result.formattedDue : Money.display(0, currencyCode: result.currencyCode))
                             .font(.system(size: 48, weight: .semibold, design: .serif))
                             .foregroundStyle(Palette.forest)
-                        Text("2.5% of \(result.formattedNet) net zakatable wealth.")
+                        Text("2.5% of \(result.formattedNet) net wealth.")
                             .font(.subheadline)
                             .foregroundStyle(Palette.muted)
                     }
@@ -29,8 +29,8 @@ struct ResultView: View {
                         nisabRow("Gold standard", result.goldNisab, selected: result.nisabStandard == .gold)
                         nisabRow("Silver standard", result.silverNisab, selected: result.nisabStandard == .silver)
                         Text(result.meetsNisab
-                             ? "Your net wealth meets the selected nisab."
-                             : "Your net wealth is below the selected nisab, so this estimate is zero.")
+                             ? "You meet the selected nisab."
+                             : "Below nisab, so this estimate is zero.")
                             .font(.caption)
                             .foregroundStyle(Palette.muted)
                     }
@@ -53,9 +53,15 @@ struct ResultView: View {
                         }
                     }
 
-                    Text("This is an estimate, not a fatwa. Rules differ by school and circumstance. Confirm with a scholar you trust before distributing.")
+                    Text("An estimate, not a fatwa. Confirm with a scholar.")
                         .font(.caption)
                         .foregroundStyle(Palette.muted)
+
+                    if session.yearSummary.transactionCount > 0 {
+                        Text("This hawl: \(session.yearSummary.formattedGain). Insight only, not the zakat base.")
+                            .font(.caption)
+                            .foregroundStyle(Palette.muted)
+                    }
 
                     ShareLink(item: shareText) {
                         Text("Share estimate")
@@ -78,9 +84,9 @@ struct ResultView: View {
 
     private var shareText: String {
         if result.meetsNisab {
-            return "My zakat estimate is \(result.formattedDue) on \(result.formattedNet) of zakatable wealth. This is an estimate, not a fatwa."
+            return "Zakat estimate: \(result.formattedDue) on \(result.formattedNet). Estimate, not a fatwa."
         }
-        return "My zakatable wealth (\(result.formattedNet)) is below nisab in the Zakat app. This is an estimate, not a fatwa."
+        return "Zakatable wealth \(result.formattedNet) is below nisab. Estimate, not a fatwa."
     }
 
     private func nisabRow(_ title: String, _ amount: Decimal, selected: Bool) -> some View {

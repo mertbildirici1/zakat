@@ -142,6 +142,19 @@ struct AccountCategoryMapperTests {
         #expect(next.bankDeposits.contains { $0.externalAccountID == "new" && $0.amount == 4_250 })
     }
 
+    @Test func removingLinkedRowsKeepsManualEntries() {
+        var draft = ZakatDraft()
+        draft.cashOnHand = 200
+        draft.bankDeposits = [
+            NamedAmount(name: "Manual", amount: 100, source: .manual),
+            NamedAmount(name: "Chase", amount: 4_250, source: .linked, externalAccountID: "ch"),
+        ]
+        let cleaned = draft.removingLinkedRows()
+        #expect(cleaned.cashOnHand == 200)
+        #expect(cleaned.bankDeposits.count == 1)
+        #expect(cleaned.bankDeposits.first?.name == "Manual")
+    }
+
     @Test func retirementAndLoansAreOffByDefault() {
         let accounts = [
             LinkedAccount(id: "1", institutionName: "Vanguard", name: "401k", type: .retirement, currentBalance: 10_000),

@@ -13,7 +13,7 @@ struct LegalGateView: View {
                         Text("Before you begin")
                             .font(.system(size: 34, weight: .semibold, design: .serif))
                             .foregroundStyle(Palette.forest)
-                        Text("Please read and accept the Terms of Use, Privacy Policy, and Zakat Disclaimer. You can open them again later from Profile or Settings.")
+                        Text("Read and accept the terms to continue.")
                             .font(.subheadline)
                             .foregroundStyle(Palette.muted)
                     }
@@ -30,7 +30,7 @@ struct LegalGateView: View {
                     }
 
                     Toggle(isOn: $accepted) {
-                        Text("I am 18 or older and I accept the Terms of Use, Privacy Policy, and Zakat Disclaimer.")
+                        Text("I am 18+ and I accept the terms.")
                             .font(.subheadline)
                             .foregroundStyle(Palette.ink)
                     }
@@ -83,7 +83,7 @@ struct LegalIndexView: View {
                         }
                         .buttonStyle(.plain)
                     }
-                    Text("These documents also live on the public website you host for App Store review (see docs/ in the project).")
+                    Text("You can reopen these anytime.")
                         .font(.caption)
                         .foregroundStyle(Palette.muted)
                         .padding(.top, 8)

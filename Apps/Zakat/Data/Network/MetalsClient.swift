@@ -30,7 +30,7 @@ enum HawlReminder {
             components.minute = 0
             let content = UNMutableNotificationContent()
             content.title = "Zakat anniversary"
-            content.body = "Your recorded hawl is due around today. Open Zakat to review your estimate."
+            content.body = "Your hawl is due. Open Zakat to review."
             content.sound = .default
             let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
             let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)

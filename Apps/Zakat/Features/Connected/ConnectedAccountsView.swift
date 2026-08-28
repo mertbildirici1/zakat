@@ -10,7 +10,7 @@ struct ConnectedAccountsView: View {
             ScreenBackground()
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    Text("This flow is built like Plaid Link: a backend creates a link session, you pick an institution, and balances are mapped into zakat categories. You still confirm every line.")
+                    Text("Import balances and this year’s activity. Review every line.")
                         .font(.subheadline)
                         .foregroundStyle(Palette.muted)
 
@@ -20,40 +20,55 @@ struct ConnectedAccountsView: View {
                             .foregroundStyle(Palette.gold)
                     }
 
+                    if session.hasCloudSession == false {
+                        Text("This profile is on this iPhone only.")
+                            .font(.caption)
+                            .foregroundStyle(Palette.muted)
+                    }
+
                     if !session.linkedAccounts.isEmpty {
-                        VStack(alignment: .leading, spacing: 10) {
-                            Text("Linked now")
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Linked")
                                 .font(.headline)
-                            ForEach(session.linkedAccounts) { account in
-                                HStack {
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text(account.displayName)
+                            ForEach(groupedInstitutions, id: \.name) { group in
+                                VStack(alignment: .leading, spacing: 8) {
+                                    HStack {
+                                        Text(group.name)
                                             .font(.subheadline.weight(.semibold))
-                                        Text("\(account.institutionName) · \(account.type.rawValue)")
-                                            .font(.caption)
-                                            .foregroundStyle(Palette.muted)
+                                        Spacer()
+                                        Button("Unlink", role: .destructive) {
+                                            session.unlinkInstitution(group.name)
+                                        }
+                                        .font(.caption.weight(.semibold))
                                     }
-                                    Spacer()
-                                    Text(Money.display(account.currentBalance))
-                                        .font(.subheadline.monospacedDigit())
+                                    ForEach(group.accounts) { account in
+                                        HStack {
+                                            VStack(alignment: .leading, spacing: 2) {
+                                                Text(account.displayName)
+                                                    .font(.subheadline.weight(.semibold))
+                                                Text(account.type.rawValue)
+                                                    .font(.caption)
+                                                    .foregroundStyle(Palette.muted)
+                                            }
+                                            Spacer()
+                                            Text(Money.display(account.currentBalance))
+                                                .font(.subheadline.monospacedDigit())
+                                        }
+                                    }
                                 }
                                 .padding(12)
                                 .background(Color.white.opacity(0.7), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                             }
-                            Button("Unlink all imported accounts", role: .destructive) {
-                                session.applyLinkedAccounts([])
-                            }
-                            .font(.subheadline.weight(.semibold))
                         }
                     }
 
                     if viewModel.institutions.isEmpty {
-                        PrimaryButton(title: viewModel.isLoading ? "Connecting…" : "Start account link") {
-                            Task { await viewModel.start(baseURL: session.backendURL) }
+                        PrimaryButton(title: viewModel.isLoading ? "Connecting…" : "Link an account") {
+                            Task { await viewModel.start(session: session) }
                         }
                         .disabled(viewModel.isLoading)
                     } else {
-                        Text("Choose an institution")
+                        Text("Choose a bank")
                             .font(.headline)
                         ForEach(viewModel.institutions) { institution in
                             Button {
@@ -80,24 +95,37 @@ struct ConnectedAccountsView: View {
                     NavigationLink {
                         ManualCalculatorView()
                     } label: {
-                        Text("Review and complete manually")
+                        Text("Add gold & cash")
                             .font(.headline)
                             .foregroundStyle(Palette.forest)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
                             .background(Palette.parchment, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
                     }
-                    .disabled(session.linkedAccounts.isEmpty && session.draft.bankDeposits.isEmpty)
 
-                    Text("Real Plaid production keys never belong in the iOS app. The local backend holds the secret and exchanges public tokens.")
+                    Text("Bank keys stay on the server.")
                         .font(.caption)
                         .foregroundStyle(Palette.muted)
                 }
                 .padding(20)
             }
+            .refreshable {
+                await session.refreshFromCloud()
+            }
         }
-        .navigationTitle("Connect accounts")
+        .navigationTitle("Accounts")
         .navigationBarTitleDisplayMode(.inline)
+        .task {
+            if viewModel.institutions.isEmpty {
+                await viewModel.start(session: session)
+            }
+        }
+    }
+
+    private var groupedInstitutions: [(name: String, accounts: [LinkedAccount])] {
+        Dictionary(grouping: session.linkedAccounts, by: \.institutionName)
+            .map { ($0.key, $0.value) }
+            .sorted { $0.name < $1.name }
     }
 }
 
@@ -108,27 +136,36 @@ final class ConnectedAccountsViewModel {
     var isLoading = false
     var errorMessage: String?
     var modeLabel = ""
-    private var linkToken = ""
     private var usingOfflineFallback = false
 
-    func start(baseURL: URL) async {
+    func start(session: AppSession) async {
         isLoading = true
         errorMessage = nil
         defer { isLoading = false }
 
+        if let token = SessionTokenStore.token {
+            do {
+                let created = try await CloudAPI(baseURL: session.backendURL, token: token).linkToken()
+                institutions = created.institutions
+            modeLabel = created.mode == "plaid" ? "Plaid sandbox" : "Saved to your account"
+                usingOfflineFallback = false
+                return
+            } catch {
+                errorMessage = "Cloud linking unavailable. Using sandbox."
+            }
+        }
+
         do {
-            let session = try await LiveBankLinkClient(baseURL: baseURL).createLinkToken()
-            linkToken = session.linkToken
-            institutions = session.institutions
-            modeLabel = session.mode == "plaid" ? "Live Plaid sandbox" : "Local linking sandbox"
+            let created = try await LiveBankLinkClient(baseURL: session.backendURL).createLinkToken()
+            institutions = created.institutions
+            modeLabel = created.mode == "plaid" ? "Plaid sandbox" : "Local sandbox"
             usingOfflineFallback = false
         } catch {
-            let session = try? await OfflineSandboxBankLinkClient().createLinkToken()
-            linkToken = session?.linkToken ?? "offline-sandbox"
-            institutions = session?.institutions ?? SandboxCatalog.institutions
-            modeLabel = "Offline sandbox (backend not running)"
+            let created = try? await OfflineSandboxBankLinkClient().createLinkToken()
+            institutions = created?.institutions ?? SandboxCatalog.institutions
+            modeLabel = "Offline sandbox"
             usingOfflineFallback = true
-            errorMessage = "Using built-in sandbox data. Start backend/ to talk to a local Plaid-style server."
+            errorMessage = "Using built-in sandbox. Start the API to save links."
         }
     }
 
@@ -138,16 +175,16 @@ final class ConnectedAccountsViewModel {
         defer { isLoading = false }
 
         do {
+            if session.hasCloudSession && usingOfflineFallback == false {
+                try await session.connectCloudInstitution(institution.id)
+                modeLabel = "Imported \(institution.name)"
+                return
+            }
             let client: any BankLinkClient = usingOfflineFallback
                 ? OfflineSandboxBankLinkClient()
                 : LiveBankLinkClient(baseURL: session.backendURL)
-            let item = try await client.completeLink(
-                publicToken: linkToken,
-                institutionID: institution.id
-            )
-            var accounts = session.linkedAccounts.filter { $0.institutionName != item.institutionName }
-            accounts.append(contentsOf: item.accounts)
-            session.applyLinkedAccounts(accounts)
+            let item = try await client.completeLink(publicToken: "sandbox", institutionID: institution.id)
+            session.applyLinkedItem(item)
             modeLabel = "Imported \(item.institutionName)"
         } catch {
             errorMessage = error.localizedDescription

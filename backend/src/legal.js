@@ -37,7 +37,7 @@ export function supportPage() {
   return page(
     "Zakat support",
     `<p class="muted">Version 1.0. A zakat estimate helper for iPhone.</p>
-     <p>Email <a href="mailto:support@zakat.app">support@zakat.app</a> for product questions, bugs, or a data-deletion request. Include your iOS version. Do not send passwords.</p>
+     <p>Email <a href="mailto:hmertbildirici@gmail.com">hmertbildirici@gmail.com</a> for product questions, bugs, or a data-deletion request. Include your iOS version. Do not send passwords.</p>
      <p>Offline calculation does not require an account. Local profiles live on your iPhone until you delete them in the app or uninstall.</p>`
   );
 }
@@ -49,10 +49,10 @@ export function privacyPage() {
      <p>This Privacy Policy explains how the Zakat app (“App”) handles information. The App is designed so that your holdings and profile can stay on your iPhone.</p>
      <p><strong>1. What we mean by “collect.”</strong> Apple treats data as collected when it is transmitted off the device in a way that we or a partner can access. Calculation drafts, local profiles, and history that never leave your phone are stored on-device only.</p>
      <p><strong>2. Information on your device.</strong> The App may store your name, email, a hashed password, zakat holdings, linked account names and balances, history, nisab and hawl preferences, and legal acceptance. Passwords are salted hashes. There is no cloud account in this version.</p>
-     <p><strong>3. Information that may leave the device.</strong> Metal-price requests do not include your holdings. If you link a bank, a linking provider (such as Plaid) and our backend retrieve account names and balances for you to review. If you email support@zakat.app, we receive what you send. We do not sell information, advertise with it, or track you across apps.</p>
+     <p><strong>3. Information that may leave the device.</strong> Metal-price requests do not include your holdings. If you link a bank, a linking provider (such as Plaid) and our backend retrieve account names and balances for you to review. If you email hmertbildirici@gmail.com, we receive what you send. We do not sell information, advertise with it, or track you across apps.</p>
      <p><strong>4. Account deletion.</strong> Profile → Delete account removes the local profile from this iPhone. Uninstalling the App also removes local App data.</p>
      <p><strong>5. Children.</strong> The App is not directed to children under 13.</p>
-     <p><strong>6. Contact.</strong> support@zakat.app</p>`
+     <p><strong>6. Contact.</strong> hmertbildirici@gmail.com</p>`
   );
 }
 
@@ -69,7 +69,7 @@ export function termsPage() {
      <p><strong>6. Connected accounts.</strong> Linking authorizes the provider and our backend to retrieve balances. You must review every imported line.</p>
      <p><strong>7. Acceptable use.</strong> Do not misuse the App or submit information you lack the right to provide.</p>
      <p><strong>8. Warranties and liability.</strong> THE APP IS PROVIDED “AS IS.” TO THE FULLEST EXTENT PERMITTED BY LAW WE DISCLAIM IMPLIED WARRANTIES AND ARE NOT LIABLE FOR INDIRECT DAMAGES OR FOR UNDER- OR OVER-PAYMENT OF ZAKAT. TOTAL LIABILITY WILL NOT EXCEED USD $50.</p>
-     <p><strong>9. Contact.</strong> support@zakat.app</p>`
+     <p><strong>9. Contact.</strong> hmertbildirici@gmail.com</p>`
   );
 }
 

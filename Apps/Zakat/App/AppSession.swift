@@ -11,11 +11,14 @@ final class AppSession {
     var draft: ZakatDraft
     var lastResult: ZakatResult?
     var linkedAccounts: [LinkedAccount]
+    var transactions: [BankTransaction]
     var history: [SavedSnapshot]
     var meta: WorkspaceMeta
     var backendURL: URL
     var selectedTab: Int
     var metalsStatus: String?
+    var cloudStatus: String?
+    var isRefreshing: Bool
 
     init(
         draft: ZakatDraft = .empty,
@@ -29,13 +32,20 @@ final class AppSession {
         self.draft = draft
         self.lastResult = lastResult
         self.linkedAccounts = linkedAccounts
+        self.transactions = []
         self.history = []
         self.meta = WorkspaceMeta()
         self.backendURL = backendURL
         self.selectedTab = 0
         self.metalsStatus = nil
+        self.cloudStatus = nil
+        self.isRefreshing = false
 
-        if route == .signedIn && currentUser == nil {
+        if AppConfig.accountsEnabled == false, route == .signedIn {
+            currentUser = nil
+            route = .welcome
+            AuthStore.route = .welcome
+        } else if route == .signedIn && currentUser == nil {
             route = .welcome
             AuthStore.route = .welcome
         }
@@ -62,14 +72,25 @@ final class AppSession {
         Hawl.daysRemaining(from: meta.hawlStartDate)
     }
 
+    var yearSummary: YearSummary {
+        YearAnalyzer().summarize(transactions, from: meta.hawlStartDate)
+    }
+
+    var hasCloudSession: Bool {
+        SessionTokenStore.token != nil
+    }
+
     func acceptLegal() {
         AuthStore.hasAcceptedLegal = true
         hasAcceptedLegal = true
     }
 
     func enterOffline() {
-        AuthStore.enterOffline()
         currentUser = nil
+        linkedAccounts = []
+        transactions = []
+        cloudStatus = nil
+        AuthStore.enterOffline()
         route = .offline
         loadWorkspace()
     }
@@ -80,7 +101,7 @@ final class AppSession {
         route = .welcome
     }
 
-    func createAccount(fullName: String, email: String, password: String, confirmPassword: String) throws {
+    func createAccount(fullName: String, email: String, password: String, confirmPassword: String) async throws {
         guard hasAcceptedLegal else { throw AuthError.mustAcceptLegal }
         persist()
         currentUser = try AuthStore.createAccount(
@@ -91,13 +112,63 @@ final class AppSession {
         )
         route = .signedIn
         loadWorkspace()
+        do {
+            let cloud = try await CloudAPI(baseURL: backendURL).register(
+                fullName: fullName,
+                email: email,
+                password: password
+            )
+            SessionTokenStore.token = cloud.token
+            cloudStatus = nil
+            await refreshFromCloud()
+        } catch {
+            do {
+                let cloud = try await CloudAPI(baseURL: backendURL).login(email: email, password: password)
+                SessionTokenStore.token = cloud.token
+                cloudStatus = nil
+                await refreshFromCloud()
+            } catch {
+                cloudStatus = "On this iPhone only."
+            }
+        }
     }
 
-    func signIn(email: String, password: String) throws {
+    func signIn(email: String, password: String) async throws {
         persist()
-        currentUser = try AuthStore.signIn(email: email, password: password)
-        route = .signedIn
-        loadWorkspace()
+        do {
+            let cloud = try await CloudAPI(baseURL: backendURL).login(email: email, password: password)
+            SessionTokenStore.token = cloud.token
+            currentUser = AuthStore.upsertCloudProfile(fullName: cloud.user.fullName, email: cloud.user.email)
+            route = .signedIn
+            loadWorkspace()
+            cloudStatus = nil
+            await refreshFromCloud()
+            return
+        } catch {
+            currentUser = try AuthStore.signIn(email: email, password: password)
+            route = .signedIn
+            loadWorkspace()
+        }
+
+        do {
+            let cloud = try await CloudAPI(baseURL: backendURL).register(
+                fullName: currentUser?.fullName ?? "User",
+                email: email,
+                password: password
+            )
+            SessionTokenStore.token = cloud.token
+            cloudStatus = nil
+            await refreshFromCloud()
+        } catch {
+            do {
+                let cloud = try await CloudAPI(baseURL: backendURL).login(email: email, password: password)
+                SessionTokenStore.token = cloud.token
+                cloudStatus = nil
+                await refreshFromCloud()
+            } catch {
+                cloudStatus = "On this iPhone only."
+            }
+        }
     }
 
     func resetPassword(email: String, newPassword: String, confirmPassword: String) throws {
@@ -110,25 +181,33 @@ final class AppSession {
 
     func signOut() {
         persist()
-        AuthStore.signOut()
-        currentUser = nil
-        route = .welcome
         draft = .empty
         lastResult = nil
         linkedAccounts = []
+        transactions = []
         history = []
         meta = WorkspaceMeta()
+        cloudStatus = nil
+        currentUser = nil
+        route = .welcome
+        AuthStore.signOut()
     }
 
     func deleteAccount() {
-        AuthStore.deleteCurrentAccount()
-        currentUser = nil
-        route = .welcome
+        if let token = SessionTokenStore.token {
+            let url = backendURL
+            Task { try? await CloudAPI(baseURL: url, token: token).deleteAccount() }
+        }
         draft = .empty
         lastResult = nil
         linkedAccounts = []
+        transactions = []
         history = []
         meta = WorkspaceMeta()
+        cloudStatus = nil
+        currentUser = nil
+        route = .welcome
+        AuthStore.deleteCurrentAccount()
     }
 
     func recalculate() {
@@ -142,9 +221,69 @@ final class AppSession {
         recalculate()
     }
 
+    func applyTransactions(_ items: [BankTransaction]) {
+        transactions = items.sorted { $0.date > $1.date }
+        persist()
+    }
+
+    func applyLinkedItem(_ item: LinkedItem) {
+        var accounts = linkedAccounts.filter { $0.institutionName != item.institutionName }
+        accounts.append(contentsOf: item.accounts)
+        let incomingIDs = Set(item.accounts.map(\.id))
+        var txs = transactions.filter { incomingIDs.contains($0.accountID) == false }
+        if let newTx = item.transactions {
+            txs.append(contentsOf: newTx)
+        }
+        applyTransactions(txs)
+        applyLinkedAccounts(accounts)
+    }
+
+    func refreshFromCloud() async {
+        guard let token = SessionTokenStore.token else { return }
+        isRefreshing = true
+        defer { isRefreshing = false }
+        do {
+            let snapshot = try await CloudAPI(baseURL: backendURL, token: token).snapshot()
+            applyTransactions(snapshot.transactions)
+            applyLinkedAccounts(snapshot.accounts)
+            if snapshot.accounts.isEmpty {
+                cloudStatus = "Link a bank to import this year."
+            } else {
+                cloudStatus = "\(snapshot.accounts.count) linked · \(snapshot.transactions.count) transactions"
+            }
+        } catch {
+            cloudStatus = error.localizedDescription
+        }
+    }
+
+    func connectCloudInstitution(_ institutionID: String) async throws {
+        guard let token = SessionTokenStore.token else {
+            throw BankLinkError(errorDescription: "Sign in to save a bank link.")
+        }
+        _ = try await CloudAPI(baseURL: backendURL, token: token).completeLink(institutionID: institutionID)
+        await refreshFromCloud()
+    }
+
     func unlinkInstitution(_ name: String) {
-        linkedAccounts.removeAll { $0.institutionName == name }
-        applyLinkedAccounts(linkedAccounts)
+        let remaining = linkedAccounts.filter { $0.institutionName != name }
+        let remainingIDs = Set(remaining.map(\.id))
+        transactions.removeAll { remainingIDs.contains($0.accountID) == false }
+        applyLinkedAccounts(remaining)
+        persist()
+        if let token = SessionTokenStore.token {
+            let url = backendURL
+            let institutionID = Self.institutionID(for: name)
+            Task {
+                try? await CloudAPI(baseURL: url, token: token).unlink(institutionID: institutionID)
+            }
+        }
+    }
+
+    static func institutionID(for name: String) -> String {
+        let lower = name.lowercased()
+        if lower.contains("fidelity") { return "fidelity" }
+        if lower.contains("coinbase") { return "coinbase" }
+        return "chase"
     }
 
     func saveSnapshot() {
@@ -176,13 +315,16 @@ final class AppSession {
             metalsStatus = "Updated from \(quote.source)"
             recalculate()
         } catch {
-            metalsStatus = "Could not refresh prices. Enter them yourself."
+            metalsStatus = "Couldn’t refresh. Enter prices yourself."
         }
     }
 
     func persist() {
-        DraftStore.save(draft, namespace: storageNamespace)
-        DraftStore.saveAccounts(linkedAccounts, namespace: storageNamespace)
+        if route == .welcome { return }
+        let isOffline = storageNamespace == "offline"
+        DraftStore.save(isOffline ? draft.removingLinkedRows() : draft, namespace: storageNamespace)
+        DraftStore.saveAccounts(isOffline ? [] : linkedAccounts, namespace: storageNamespace)
+        DraftStore.saveTransactions(isOffline ? [] : transactions, namespace: storageNamespace)
         DraftStore.saveHistory(history, namespace: storageNamespace)
         DraftStore.saveMeta(meta, namespace: storageNamespace)
         if let lastResult {
@@ -194,15 +336,26 @@ final class AppSession {
         draft = DraftStore.load(namespace: storageNamespace) ?? .empty
         lastResult = DraftStore.loadResult(namespace: storageNamespace)
         linkedAccounts = DraftStore.loadAccounts(namespace: storageNamespace)
+        transactions = DraftStore.loadTransactions(namespace: storageNamespace)
         history = DraftStore.loadHistory(namespace: storageNamespace)
         meta = DraftStore.loadMeta(namespace: storageNamespace)
+        if storageNamespace == "offline" {
+            draft = draft.removingLinkedRows()
+            linkedAccounts = []
+            transactions = []
+        }
         recalculate()
     }
 
     func resetDraft() {
         let settings = draft.settings
         draft = ZakatDraft(settings: settings)
-        linkedAccounts = []
+        if route == .offline {
+            linkedAccounts = []
+            transactions = []
+        } else {
+            draft = AccountCategoryMapper().apply(linkedAccounts, to: draft)
+        }
         lastResult = ZakatCalculator().calculate(draft)
         persist()
     }

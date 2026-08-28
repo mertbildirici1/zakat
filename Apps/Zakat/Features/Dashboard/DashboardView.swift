@@ -6,27 +6,35 @@ struct DashboardView: View {
 
     var body: some View {
         let result = session.lastResult ?? ZakatCalculator().calculate(session.draft)
+        let year = session.yearSummary
 
         ZStack {
             ScreenBackground()
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
                     header
+
+                    if let status = session.cloudStatus {
+                        Text(status)
+                            .font(.caption)
+                            .foregroundStyle(Palette.muted)
+                    }
+
                     NavigationLink {
                         ResultView(result: result)
                     } label: {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Current estimate")
+                            Text("Zakat due")
                                 .font(.caption.weight(.semibold))
                                 .tracking(0.8)
                                 .foregroundStyle(Palette.gold)
                             Text(result.meetsNisab ? result.formattedDue : "Below nisab")
                                 .font(.system(size: 36, weight: .semibold, design: .serif))
                                 .foregroundStyle(Palette.ink)
-                            Text("On \(result.formattedNet) of zakatable wealth")
+                            Text("2.5% of \(result.formattedNet)")
                                 .font(.subheadline)
                                 .foregroundStyle(Palette.muted)
-                            Text("Tap for the full breakdown")
+                            Text("Tap for breakdown")
                                 .font(.caption)
                                 .foregroundStyle(Palette.muted)
                                 .padding(.top, 4)
@@ -37,62 +45,79 @@ struct DashboardView: View {
                     }
                     .buttonStyle(.plain)
 
+                    Button {
+                        session.selectedTab = 1
+                    } label: {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text("This hawl")
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(Palette.gold)
+                                Text(session.transactions.isEmpty ? "Link a bank to see this year" : year.formattedGain)
+                                    .font(.title3.weight(.semibold))
+                                    .foregroundStyle(Palette.ink)
+                                Text(session.transactions.isEmpty
+                                     ? "Income minus spending."
+                                     : "Income \(year.formattedIncome) · spending \(year.formattedSpending)")
+                                    .font(.caption)
+                                    .foregroundStyle(Palette.muted)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .foregroundStyle(Palette.muted)
+                        }
+                        .padding(18)
+                        .background(Color.white.opacity(0.72), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
+
                     HStack(spacing: 8) {
                         Text("Hawl")
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(Palette.gold)
-                        Text(session.hawlDaysRemaining >= 0
+                        Text(session.hawlDaysRemaining > 0
                              ? "\(session.hawlDaysRemaining) days remaining"
+                             : session.hawlDaysRemaining == 0 ? "Due today"
                              : "Anniversary passed")
                             .font(.caption)
                             .foregroundStyle(Palette.muted)
                     }
 
                     NavigationLink {
-                        HistoryView()
+                        ManualCalculatorView()
                     } label: {
                         ModeCard(
-                            eyebrow: "Saved",
-                            title: "History",
-                            detail: session.history.isEmpty ? "Results you open will be stored on this phone." : "\(session.history.count) saved estimates.",
-                            systemImage: "clock"
+                            eyebrow: "Holdings",
+                            title: "Gold & cash",
+                            detail: "Add jewelry and cash banks can’t see.",
+                            systemImage: "banknote"
                         )
                     }
                     .buttonStyle(.plain)
 
-                    NavigationLink {
-                        ConnectedAccountsView()
-                    } label: {
-                        ModeCard(
-                            eyebrow: "Connected",
-                            title: session.linkedAccounts.isEmpty ? "Link bank accounts" : "Manage linked accounts",
-                            detail: session.linkedAccounts.isEmpty
-                                ? "Prefill balances from banks, brokerages, and crypto. You review every line."
-                                : "\(session.linkedAccounts.count) linked · tap to add another institution or review.",
-                            systemImage: "building.columns"
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    NavigationLink {
-                        SettingsView()
-                    } label: {
-                        ModeCard(
-                            eyebrow: "Rules",
-                            title: "Nisab and what to include",
-                            detail: session.draft.settings.nisabStandard == .gold
-                                ? "Using gold nisab. Jewelry, retirement, and debts can be changed here."
-                                : "Using silver nisab. Jewelry, retirement, and debts can be changed here.",
-                            systemImage: "slider.horizontal.3"
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    if session.linkedAccounts.isEmpty == false {
+                    if session.linkedAccounts.isEmpty {
+                        Button {
+                            session.selectedTab = 2
+                        } label: {
+                            ModeCard(
+                                eyebrow: "Accounts",
+                                title: "Connect a bank",
+                                detail: "Import balances and this year’s activity.",
+                                systemImage: "building.columns"
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    } else {
                         VStack(alignment: .leading, spacing: 10) {
-                            Text("Linked")
-                                .font(.headline)
-                            ForEach(session.linkedAccounts.prefix(4)) { account in
+                            HStack {
+                                Text("Linked")
+                                    .font(.headline)
+                                Spacer()
+                                Button("Manage") { session.selectedTab = 2 }
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundStyle(Palette.forest)
+                            }
+                            ForEach(session.linkedAccounts.prefix(5)) { account in
                                 HStack {
                                     Text(account.displayName)
                                         .font(.subheadline.weight(.medium))
@@ -106,8 +131,37 @@ struct DashboardView: View {
                         .padding(16)
                         .background(Color.white.opacity(0.72), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                     }
+
+                    NavigationLink {
+                        SettingsView()
+                    } label: {
+                        ModeCard(
+                            eyebrow: "Rules",
+                            title: "Nisab & rules",
+                            detail: session.draft.settings.nisabStandard == .gold
+                                ? "Using gold nisab."
+                                : "Using silver nisab.",
+                            systemImage: "slider.horizontal.3"
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    NavigationLink {
+                        HistoryView()
+                    } label: {
+                        ModeCard(
+                            eyebrow: "Saved",
+                            title: "History",
+                            detail: session.history.isEmpty ? "Estimates you open are saved here." : "\(session.history.count) saved estimates.",
+                            systemImage: "clock"
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
                 .padding(24)
+            }
+            .refreshable {
+                await session.refreshFromCloud()
             }
         }
         .navigationBarTitleDisplayMode(.inline)

@@ -33,7 +33,7 @@ Zakat helps you estimate 2.5% of net zakatable wealth.
 This is an estimate, not a fatwa. Confirm with a scholar you trust before you distribute.
 
 **Keywords:** zakat,nisab,islam,charity,gold,calculator,finance,sadaqah,hawl,muslim  
-**Support email:** support@zakat.app (change to an inbox you monitor)
+**Support email:** hmertbildirici@gmail.com
 
 ## App privacy (nutrition labels)
 

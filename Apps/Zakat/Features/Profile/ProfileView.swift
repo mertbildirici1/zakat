@@ -19,7 +19,7 @@ struct ProfileView: View {
                             Text(user.email)
                                 .font(.subheadline)
                                 .foregroundStyle(Palette.muted)
-                            Text("On this phone since \(user.createdAt.formatted(date: .abbreviated, time: .omitted))")
+                            Text("Since \(user.createdAt.formatted(date: .abbreviated, time: .omitted))")
                                 .font(.caption)
                                 .foregroundStyle(Palette.muted)
                         }
@@ -46,7 +46,7 @@ struct ProfileView: View {
                             SettingsView()
                         } label: {
                             ProfileRow(
-                                title: "Calculation settings",
+                                title: "Settings",
                                 systemImage: "slider.horizontal.3",
                                 detail: session.draft.settings.nisabStandard == .gold ? "Gold nisab" : "Silver nisab"
                             )
@@ -57,7 +57,7 @@ struct ProfileView: View {
                             ConnectedAccountsView()
                         } label: {
                             ProfileRow(
-                                title: "Linked accounts",
+                                title: "Accounts",
                                 systemImage: "building.columns",
                                 detail: session.linkedAccounts.isEmpty ? "None" : "\(session.linkedAccounts.count)"
                             )
@@ -113,7 +113,9 @@ struct ProfileView: View {
                         .buttonStyle(.plain)
                     }
 
-                    Text("Your profile and passwords stay on this iPhone. This is not a cloud account yet.")
+                    Text(session.hasCloudSession
+                         ? "Bank links save so they can refresh."
+                         : "This profile is on this iPhone.")
                         .font(.caption)
                         .foregroundStyle(Palette.muted)
                         .multilineTextAlignment(.center)
@@ -128,13 +130,13 @@ struct ProfileView: View {
             Button("Sign out", role: .destructive) { session.signOut() }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("You can sign back in on this phone with the same email.")
+            Text("You can sign back in with the same email.")
         }
         .alert("Delete this account?", isPresented: $showDelete) {
             Button("Delete", role: .destructive) { session.deleteAccount() }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("This removes the local profile and its saved estimate from this iPhone.")
+            Text("Removes this profile and saved bank links.")
         }
     }
 }

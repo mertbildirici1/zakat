@@ -10,6 +10,7 @@ DerivedData/
 .env.local
 node_modules/
 backend/node_modules/
+backend/data/
 *.xcuserstate
 xcuserdata/
 .idea

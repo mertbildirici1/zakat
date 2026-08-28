@@ -15,7 +15,7 @@ struct OfflineGatewayView: View {
                     Text("Calculate on this phone")
                         .font(.system(size: 34, weight: .semibold, design: .serif))
                         .foregroundStyle(Palette.forest)
-                    Text("No sign-in and no bank connection. Enter cash, gold, investments, and debts yourself, then see what you owe.")
+                    Text("Enter cash, gold, and debts yourself. No account needed.")
                         .font(.body)
                         .foregroundStyle(Palette.muted)
                         .fixedSize(horizontal: false, vertical: true)
@@ -25,7 +25,7 @@ struct OfflineGatewayView: View {
                     NavigationLink {
                         ManualCalculatorView()
                     } label: {
-                        Text("Start calculating")
+                        Text("Start")
                             .font(.headline)
                             .foregroundStyle(Palette.cream)
                             .frame(maxWidth: .infinity)
@@ -36,7 +36,7 @@ struct OfflineGatewayView: View {
                     NavigationLink {
                         SettingsView()
                     } label: {
-                        Text("Nisab and metal prices")
+                        Text("Nisab & prices")
                             .font(.headline)
                             .foregroundStyle(Palette.forest)
                             .frame(maxWidth: .infinity)
@@ -66,7 +66,7 @@ struct OfflineGatewayView: View {
 
                 VStack(alignment: .leading, spacing: 8) {
                     Label("Stays on this device", systemImage: "lock.fill")
-                    Label("You can sign in later if you want to link accounts", systemImage: "person.crop.circle")
+                    Label("Bank linking is coming soon", systemImage: "person.crop.circle")
                 }
                 .font(.subheadline)
                 .foregroundStyle(Palette.muted)
